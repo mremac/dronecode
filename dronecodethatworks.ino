@@ -12,6 +12,7 @@
 
 MPU6050 accelgyro;
 int16_t ax, ay, az;
+int axa, aya, aza;
 int16_t gx, gy, gz;
 #define OUTPUT_READABLE_ACCELGYRO
 #define LED_PIN 13
@@ -26,6 +27,7 @@ Servo servo3;
 Servo servo4;
 
 int pos = 0;
+int offa, offb, offc, offd;
 int i = 0;
 
  #define rfReceivePin A0  //RF Receiver pin = Analog pin 0
@@ -68,19 +70,14 @@ int i = 0;
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_MAX);
   radio.startListening();
- }
-
- void loop(){
-    // blink LED to indicate activity
-    blinkState = !blinkState;
-    digitalWrite(LED_PIN, blinkState);
-    
-  if (radio.available()) {
+  
     char text[32] = "";
     radio.read(&text, sizeof(text));
-    if(2){
+    //Check first for radio signal
+    if(strcmp(text, "Hello world") == 1){
+      //Print received signal and then start rotors - rotors will speed up a little
       Serial.println(text);
-       for(pos=26;pos<80;pos += 3){
+       for(pos=26;pos<62;pos += 3){
           servo1.write(pos);
           servo2.write(pos);
           servo3.write(pos);
@@ -90,31 +87,59 @@ int i = 0;
           
           Serial.println(text);
           
-          // read raw accel/gyro measurements from device
-          accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-          #ifdef OUTPUT_READABLE_ACCELGYRO
-              // display tab-separated accel/gyro x/y/z values
-              Serial.print("a/g:\t");
-              Serial.print(ax); Serial.print("\t");
-              Serial.print(ay); Serial.print("\t");
-              Serial.print(az); Serial.print("\t");
-              Serial.print(gx); Serial.print("\t");
-              Serial.print(gy); Serial.print("\t");
-              Serial.println(gz);
-          #endif
-      
-          #ifdef OUTPUT_BINARY_ACCELGYRO
-              Serial.write((uint8_t)(ax >> 8)); Serial.write((uint8_t)(ax & 0xFF));
-              Serial.write((uint8_t)(ay >> 8)); Serial.write((uint8_t)(ay & 0xFF));
-              Serial.write((uint8_t)(az >> 8)); Serial.write((uint8_t)(az & 0xFF));
-              Serial.write((uint8_t)(gx >> 8)); Serial.write((uint8_t)(gx & 0xFF));
-              Serial.write((uint8_t)(gy >> 8)); Serial.write((uint8_t)(gy & 0xFF));
-              Serial.write((uint8_t)(gz >> 8)); Serial.write((uint8_t)(gz & 0xFF));
-          #endif
+          
        }
+       
+       // Reset all offsets and speeds ready to begin RC
+       pos = 26;
+       axa = 0;
+       aya = 0;
+       aya = 0;
+       offa = 0;
+       offb = 0;
+       offc = 0;
+       offd = 0;
+          servo1.write(pos);
+          servo2.write(pos);
+          servo3.write(pos);
+          servo4.write(pos);
     } else{
 //      Serial.println(text);
     }
+ }
+
+ void loop(){
+    // blink LED to indicate activity
+    blinkState = !blinkState;
+    digitalWrite(LED_PIN, blinkState);
+    
+  if (radio.available()) {
+    
+    char text[32] = "";
+    radio.read(&text, sizeof(text));
+    
+    // read raw accel/gyro measurements from device
+    accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+    // Use data to balance/move drone
+    feedbackCheckAccelGyro();
+
+    // Print data
+    printAccelGyro();
+          
+//    if(strcmp(text, "Hello world" == 1)){
+      Serial.println(text);
+      servo1.write(pos + offa);
+      servo2.write(pos + offb);
+      servo3.write(pos + offc);
+      servo4.write(pos + offd);
+      delay(10);
+      radio.read(&text, sizeof(text));
+      
+      Serial.println(text);
+//    } else{
+//      Serial.println(text);
+//    }
   }
 
 
@@ -128,4 +153,64 @@ int i = 0;
 
     
      
+ }
+
+ void feedbackCheckAccelGyro(){
+  if(ax < axa - 5){
+    offa ++;
+    offb ++;
+    offc ++;
+    offd ++;
+  } else if(ax > axa + 5){
+    offa --;
+    offb --;
+    offc --;
+    offd --;
+  }
+
+  if(ay < aya - 5){
+    offa ++;
+    offb ++;
+    offc --;
+    offd --;
+  } else if(ay > aya + 5){
+    offa --;
+    offb --;
+    offc ++;
+    offd ++;
+  }
+
+  if(az < aza - 5){
+    offa ++;
+    offb --;
+    offc ++;
+    offd --;
+  } else if(az > aza + 5){
+    offa --;
+    offb ++;
+    offc --;
+    offd ++;
+  }
+ }
+
+ void printAccelGyro(){
+  #ifdef OUTPUT_READABLE_ACCELGYRO
+      // display tab-separated accel/gyro x/y/z values
+      Serial.print("a/g:\t");
+      Serial.print(ax); Serial.print("\t");
+      Serial.print(ay); Serial.print("\t");
+      Serial.print(az); Serial.print("\t");
+      Serial.print(gx); Serial.print("\t");
+      Serial.print(gy); Serial.print("\t");
+      Serial.println(gz);
+  #endif
+
+  #ifdef OUTPUT_BINARY_ACCELGYRO
+      Serial.write((uint8_t)(ax >> 8)); Serial.write((uint8_t)(ax & 0xFF));
+      Serial.write((uint8_t)(ay >> 8)); Serial.write((uint8_t)(ay & 0xFF));
+      Serial.write((uint8_t)(az >> 8)); Serial.write((uint8_t)(az & 0xFF));
+      Serial.write((uint8_t)(gx >> 8)); Serial.write((uint8_t)(gx & 0xFF));
+      Serial.write((uint8_t)(gy >> 8)); Serial.write((uint8_t)(gy & 0xFF));
+      Serial.write((uint8_t)(gz >> 8)); Serial.write((uint8_t)(gz & 0xFF));
+  #endif
  }
