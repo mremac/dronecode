@@ -64,7 +64,6 @@ int i = 0;
   servo4.attach(7);
   pos = 26;
   pinMode(ledPin, OUTPUT);
-  Serial.begin(9600);
    
   radio.begin();
   radio.openReadingPipe(0, address);
@@ -74,10 +73,11 @@ int i = 0;
     char text[32] = "";
     radio.read(&text, sizeof(text));
     //Check first for radio signal
-    if(strcmp(text, "Hello world") == 1){
+    //strcmp(text, "Hello world") == 1
+    if(2){
       //Print received signal and then start rotors - rotors will speed up a little
       Serial.println(text);
-       for(pos=26;pos<62;pos += 3){
+       for(pos=50;pos<110;pos += 3){
           servo1.write(pos);
           servo2.write(pos);
           servo3.write(pos);
@@ -92,17 +92,19 @@ int i = 0;
        
        // Reset all offsets and speeds ready to begin RC
        pos = 26;
-       axa = 0;
-       aya = 0;
-       aya = 0;
+       axa = 2900;
+       aya = 240;
+       aza = 23000;
        offa = 0;
        offb = 0;
        offc = 0;
        offd = 0;
-          servo1.write(pos);
-          servo2.write(pos);
-          servo3.write(pos);
-          servo4.write(pos);
+
+       //slow down motors
+      servo1.write(pos);
+      servo2.write(pos);
+      servo3.write(pos);
+      servo4.write(pos);
     } else{
 //      Serial.println(text);
     }
@@ -112,11 +114,11 @@ int i = 0;
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
-    
-  if (radio.available()) {
+    //radio.available()
+  if (2) {
     
     char text[32] = "";
-    radio.read(&text, sizeof(text));
+//    radio.read(&text, sizeof(text));
     
     // read raw accel/gyro measurements from device
     accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
@@ -128,18 +130,28 @@ int i = 0;
     printAccelGyro();
           
 //    if(strcmp(text, "Hello world" == 1)){
-      Serial.println(text);
+//      Serial.println(text);
+
+      Serial.print(offa); Serial.print("\t");
+      Serial.print(offb); Serial.print("\t");
+      Serial.print(offc); Serial.print("\t");
+      Serial.print(offd); Serial.print("\t");
+      
+      Serial.println("this butt");
+      
       servo1.write(pos + offa);
       servo2.write(pos + offb);
       servo3.write(pos + offc);
       servo4.write(pos + offd);
-      delay(10);
+      delay(500);
       radio.read(&text, sizeof(text));
       
       Serial.println(text);
 //    } else{
 //      Serial.println(text);
 //    }
+  } else{
+    Serial.println("No radio");
   }
 
 
@@ -156,36 +168,36 @@ int i = 0;
  }
 
  void feedbackCheckAccelGyro(){
-  if(ax < axa - 5){
+  if(az < aza - 500){
     offa ++;
     offb ++;
     offc ++;
     offd ++;
-  } else if(ax > axa + 5){
+  } else if(ax > aza + 500){
     offa --;
     offb --;
     offc --;
     offd --;
   }
 
-  if(ay < aya - 5){
+  if(ay < aya - 500){
     offa ++;
     offb ++;
     offc --;
     offd --;
-  } else if(ay > aya + 5){
+  } else if(ay > aya + 500){
     offa --;
     offb --;
     offc ++;
     offd ++;
   }
 
-  if(az < aza - 5){
+  if(ax < axa - 500){
     offa ++;
     offb --;
     offc ++;
     offd --;
-  } else if(az > aza + 5){
+  } else if(ax > axa + 500){
     offa --;
     offb ++;
     offc --;
