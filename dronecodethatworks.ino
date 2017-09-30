@@ -73,7 +73,7 @@ int i = 0;
     char text[32] = "";
     radio.read(&text, sizeof(text));
     //Check first for radio signal
-    //strcmp(text, "Hello world") == 1
+    //!strcmp(text, "Hello World")
     if(2){
       //Print received signal and then start rotors - rotors will speed up a little
       Serial.println(text);
