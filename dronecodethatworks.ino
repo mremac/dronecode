@@ -10,6 +10,9 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 
+RF24 radio(9, 10); // CNS, CE
+const byte address[6] = "00001";
+
 MPU6050 accelgyro;
 int16_t ax, ay, az;
 int axa, aya, aza;
@@ -17,9 +20,6 @@ int16_t gx, gy, gz;
 #define OUTPUT_READABLE_ACCELGYRO
 #define LED_PIN 13
 bool blinkState = false;
-
-RF24 radio(9, 10); // CNS, CE
-const byte address[6] = "00001";
 
 Servo servo1;
 Servo servo2;
@@ -77,7 +77,7 @@ int i = 0;
     if(2){
       //Print received signal and then start rotors - rotors will speed up a little
       Serial.println(text);
-       for(pos=50;pos<110;pos += 3){
+       for(pos=50;pos<80;pos += 3){
           servo1.write(pos);
           servo2.write(pos);
           servo3.write(pos);
@@ -91,7 +91,7 @@ int i = 0;
        }
        
        // Reset all offsets and speeds ready to begin RC
-       pos = 26;
+       pos = 38;
        axa = 2900;
        aya = 240;
        aza = 23000;
@@ -180,29 +180,29 @@ int i = 0;
     offd --;
   }
 
-  if(ay < aya - 500){
-    offa ++;
-    offb ++;
-    offc --;
-    offd --;
-  } else if(ay > aya + 500){
-    offa --;
-    offb --;
-    offc ++;
-    offd ++;
-  }
-
-  if(ax < axa - 500){
-    offa ++;
-    offb --;
-    offc ++;
-    offd --;
-  } else if(ax > axa + 500){
-    offa --;
-    offb ++;
-    offc --;
-    offd ++;
-  }
+//  if(ay < aya - 500){
+//    offa ++;
+//    offb ++;
+//    offc --;
+//    offd --;
+//  } else if(ay > aya + 500){
+//    offa --;
+//    offb --;
+//    offc ++;
+//    offd ++;
+//  }
+//
+//  if(ax < axa - 500){
+//    offa ++;
+//    offb --;
+//    offc ++;
+//    offd --;
+//  } else if(ax > axa + 500){
+//    offa --;
+//    offb ++;
+//    offc --;
+//    offd ++;
+//  }
  }
 
  void printAccelGyro(){
