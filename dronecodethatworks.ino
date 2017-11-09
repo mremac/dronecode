@@ -67,7 +67,7 @@ int i = 0;
    
   radio.begin();
   radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_MAX);
+  radio.setPALevel(RF24_PA_LOW);
   radio.startListening();
   
     char text[32] = "";
@@ -114,8 +114,8 @@ int i = 0;
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
-    //radio.available()
-  if (2) {
+    //2
+  if (radio.available()) {
     
     char text[32] = "";
 //    radio.read(&text, sizeof(text));
@@ -144,14 +144,25 @@ int i = 0;
       servo3.write(pos + offc);
       servo4.write(pos + offd);
       delay(500);
-      radio.read(&text, sizeof(text));
+
+      String message = "";
+      radio.read( &text, sizeof(text) );
+      message.concat(text);
+      radio.read( &text, sizeof(text) );
+      message.concat(text);
+      radio.read( &text, sizeof(text) );
+      message.concat(text);
+      radio.read( &text, sizeof(text) );
+      message.concat(text);
       
-      Serial.println(text);
+      
+      Serial.println(message);
 //    } else{
 //      Serial.println(text);
 //    }
   } else{
     Serial.println("No radio");
+      delay(500);
   }
 
 
