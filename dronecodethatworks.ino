@@ -114,10 +114,15 @@ int i = 0;
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
-    //2
-  if (radio.available()) {
+    //radio.available()
+  if (2) {
     
     char text[32] = "";
+    radio.read(&text, sizeof(text));
+      Serial.println(text);
+      String str(text);
+      int remoteSpeed = str.toInt();
+      remoteSpeed = remoteSpeed/10;
 //    radio.read(&text, sizeof(text));
     
     // read raw accel/gyro measurements from device
@@ -136,27 +141,20 @@ int i = 0;
       Serial.print(offb); Serial.print("\t");
       Serial.print(offc); Serial.print("\t");
       Serial.print(offd); Serial.print("\t");
-      
-      Serial.println("this butt");
-      
-      servo1.write(pos + offa);
-      servo2.write(pos + offb);
-      servo3.write(pos + offc);
-      servo4.write(pos + offd);
-      delay(500);
 
-      String message = "";
-      radio.read( &text, sizeof(text) );
-      message.concat(text);
-      radio.read( &text, sizeof(text) );
-      message.concat(text);
-      radio.read( &text, sizeof(text) );
-      message.concat(text);
-      radio.read( &text, sizeof(text) );
-      message.concat(text);
+//      Serial.println("this butt");
+
+//      servo1.write(pos + offa);
+//      servo2.write(pos + offb);
+//      servo3.write(pos + offc);
+//      servo4.write(pos + offd);
+
+      servo1.write(remoteSpeed);
+      servo2.write(remoteSpeed);
+      servo3.write(remoteSpeed);
+      servo4.write(remoteSpeed);
+      delay(200);
       
-      
-      Serial.println(message);
 //    } else{
 //      Serial.println(text);
 //    }
