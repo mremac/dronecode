@@ -64,7 +64,7 @@ int i = 0;
   servo4.attach(7);
   pos = 26;
   pinMode(ledPin, OUTPUT);
-   
+  
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.setPALevel(RF24_PA_LOW);
@@ -122,7 +122,7 @@ int i = 0;
       Serial.println(text);
       String str(text);
       int remoteSpeed = str.toInt();
-      remoteSpeed = remoteSpeed/10;
+      remoteSpeed = remoteSpeed/6;
 //    radio.read(&text, sizeof(text));
     
     // read raw accel/gyro measurements from device
